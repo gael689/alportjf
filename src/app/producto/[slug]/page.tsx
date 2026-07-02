@@ -74,20 +74,11 @@ export default async function ProductoPage({ params }: { params: Params }) {
       </nav>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <div
-          className={`relative aspect-square overflow-hidden rounded-xl bg-white lg:sticky lg:top-24 lg:self-start ${
-            tieneOferta ? "border-2 border-offer shadow-md shadow-offer/20" : "border border-border"
-          }`}
-        >
+        <div className="relative aspect-square overflow-hidden rounded-xl border border-border bg-white lg:sticky lg:top-24 lg:self-start">
           {tieneOferta && (
-            <div className="absolute left-3 top-3 z-10 flex flex-col items-start gap-1.5">
-              <span className="rounded bg-brand px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-sm">
-                Oferta
-              </span>
-              <span className="rounded-md bg-offer px-3 py-1.5 text-lg font-extrabold leading-none text-offer-ink shadow-sm">
-                -{descuento}%
-              </span>
-            </div>
+            <span className="absolute left-3 top-3 z-10 rounded-md bg-brand px-3 py-1.5 text-base font-extrabold leading-none text-white shadow-sm">
+              -{descuento}%
+            </span>
           )}
           {producto.nuevo && !tieneOferta && (
             <span className="absolute left-3 top-3 z-10 rounded-md bg-ink px-2.5 py-1 text-sm font-bold text-white shadow-sm">
@@ -116,7 +107,7 @@ export default async function ProductoPage({ params }: { params: Params }) {
 
           <div className="flex flex-col gap-1 border-y border-border py-4">
             {tieneOferta ? (
-              <div className="-mx-2 flex flex-col gap-1 rounded-lg bg-brand-tint px-3 py-2.5">
+              <>
                 <span className="text-base text-muted-foreground line-through">
                   {formatPrice(producto.precio)}
                 </span>
@@ -124,9 +115,9 @@ export default async function ProductoPage({ params }: { params: Params }) {
                   {formatPrice(producto.precioPromo!)}
                 </span>
                 {producto.ofertaHasta && (
-                  <OfferCountdown ofertaHasta={producto.ofertaHasta} className="mt-1 w-fit" />
+                  <OfferCountdown ofertaHasta={producto.ofertaHasta} className="mt-2 w-fit" />
                 )}
-              </div>
+              </>
             ) : (
               <span className="text-4xl font-extrabold text-ink">
                 {formatPrice(producto.precio)}

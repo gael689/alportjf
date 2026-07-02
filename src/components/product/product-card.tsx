@@ -18,26 +18,16 @@ export function ProductCard({ producto }: { producto: Producto }) {
     : 0;
 
   return (
-    <div
-      className={`group flex flex-col overflow-hidden rounded-xl bg-white transition-shadow hover:shadow-lg ${
-        tieneOferta
-          ? "border-2 border-offer shadow-md shadow-offer/20"
-          : "border border-border hover:shadow-md"
-      }`}
-    >
+    <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white transition-shadow hover:shadow-md">
+      {tieneOferta && <div className="h-1 w-full bg-brand" />}
       <Link
         href={`/producto/${producto.slug}`}
         className="relative block aspect-square bg-white"
       >
         {tieneOferta && (
-          <div className="absolute left-2 top-2 z-10 flex flex-col items-start gap-1">
-            <span className="rounded bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
-              Oferta
-            </span>
-            <span className="rounded-md bg-offer px-2.5 py-1 text-base font-extrabold leading-none text-offer-ink shadow-sm">
-              -{descuento}%
-            </span>
-          </div>
+          <span className="absolute left-2 top-2 z-10 rounded-md bg-brand px-2.5 py-1 text-sm font-extrabold leading-none text-white shadow-sm">
+            -{descuento}%
+          </span>
         )}
         {producto.nuevo && !tieneOferta && (
           <span className="absolute left-2 top-2 z-10 rounded-md bg-ink px-2 py-1 text-xs font-bold text-white shadow-sm">
@@ -67,14 +57,14 @@ export function ProductCard({ producto }: { producto: Producto }) {
 
         <div className="mt-1 flex flex-col gap-0.5">
           {tieneOferta ? (
-            <div className="-mx-1 flex flex-col gap-0.5 rounded-lg bg-brand-tint px-2 py-1.5">
+            <>
               <span className="text-sm text-muted-foreground line-through">
                 {formatPrice(producto.precio)}
               </span>
-              <span className="text-2xl font-extrabold text-brand">
+              <span className="text-xl font-extrabold text-brand">
                 {formatPrice(producto.precioPromo!)}
               </span>
-            </div>
+            </>
           ) : (
             <span className="text-xl font-extrabold text-ink">
               {formatPrice(producto.precio)}

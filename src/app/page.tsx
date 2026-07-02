@@ -15,13 +15,13 @@ export default function HomePage() {
         titulo="Productos destacados"
         subtitulo="Lo que más se vende en Alport JF"
         productos={getDestacados()}
-        verTodoHref="/productos"
+        verTodoHref="/productos?destacado=1"
       />
       <ProductSection
         titulo="Lo más nuevo"
         subtitulo="Recién llegado a la tienda"
         productos={getNuevos()}
-        verTodoHref="/productos?sort=nuevo"
+        verTodoHref="/productos?nuevo=1"
       />
       <CategoryGrid />
       <TrustStrip />

@@ -57,14 +57,14 @@ export function OfferCountdown({ ofertaHasta, className }: Props) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold",
+        "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold",
         urgente
-          ? "animate-pulse bg-offer text-offer-ink"
-          : "bg-ink/5 text-ink",
+          ? "animate-pulse bg-offer text-offer-ink shadow-sm shadow-offer/50 ring-2 ring-offer/30"
+          : "bg-brand/10 text-brand",
         className
       )}
     >
-      <ClockIcon className="size-3.5" />
+      <ClockIcon className="size-4" />
       {texto}
     </span>
   );

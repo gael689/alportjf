@@ -1,12 +1,25 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
-import { PhoneIcon, ClockIcon } from "@heroicons/react/24/outline";
+import {
+  PhoneIcon,
+  ClockIcon,
+  StarIcon,
+  SparklesIcon,
+  TagIcon,
+} from "@heroicons/react/24/outline";
 import { SITE, NAV_LINKS } from "@/lib/site-config";
 import { CATEGORIAS } from "@/data/categorias";
 import { CategoryIcon } from "@/lib/category-icons";
 import { SearchBar } from "@/components/layout/search-bar";
 import { CartButton } from "@/components/layout/cart-button";
+import { MobileNav } from "@/components/layout/mobile-nav";
+
+const ACCESOS_ESPECIALES = [
+  { href: "/productos?destacado=1", label: "Destacados", icono: StarIcon },
+  { href: "/productos?nuevo=1", label: "Lo nuevo", icono: SparklesIcon },
+  { href: "/promociones", label: "Promociones", icono: TagIcon },
+];
 
 export function SiteHeader() {
   return (
@@ -31,7 +44,9 @@ export function SiteHeader() {
       </div>
 
       {/* Header principal */}
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+        <MobileNav />
+
         <Link href="/" className="shrink-0">
           <Image
             src="/images/alport-logo-light.png"
@@ -49,7 +64,10 @@ export function SiteHeader() {
           </Suspense>
         </div>
 
-        <nav className="ml-auto hidden items-center gap-6 lg:flex">
+        {/* Empuja el carrito al extremo derecho en mobile, donde el buscador no ocupa espacio */}
+        <div className="flex-1 md:hidden" />
+
+        <nav className="hidden items-center gap-6 lg:flex">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -73,7 +91,20 @@ export function SiteHeader() {
 
       {/* Barra de categorías */}
       <div className="border-t border-border bg-paper">
-        <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 py-2 [scrollbar-width:none]">
+        <div className="mx-auto flex max-w-7xl items-center gap-1.5 overflow-x-auto px-4 py-2 [scrollbar-width:none]">
+          {ACCESOS_ESPECIALES.map((acceso) => (
+            <Link
+              key={acceso.href}
+              href={acceso.href}
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark"
+            >
+              <acceso.icono className="size-4" />
+              {acceso.label}
+            </Link>
+          ))}
+
+          <span className="mx-1 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
+
           {CATEGORIAS.map((cat) => (
             <Link
               key={cat.id}

@@ -18,6 +18,8 @@ type SearchParams = Promise<{
   min?: string;
   max?: string;
   sort?: string;
+  destacado?: string;
+  nuevo?: string;
 }>;
 
 export default async function ProductosPage({
@@ -27,6 +29,8 @@ export default async function ProductosPage({
 }) {
   const params = await searchParams;
   const categoria = params.cat ? getCategoriaBySlug(params.cat) : undefined;
+  const esDestacados = params.destacado === "1";
+  const esNuevos = params.nuevo === "1";
 
   const productos = filtrarYOrdenarProductos(PRODUCTOS, {
     cat: params.cat,
@@ -34,14 +38,22 @@ export default async function ProductosPage({
     min: params.min ? Number(params.min) : undefined,
     max: params.max ? Number(params.max) : undefined,
     sort: params.sort as CatalogSort | undefined,
+    destacado: esDestacados,
+    nuevo: esNuevos,
   });
+
+  const titulo = esDestacados
+    ? "Productos destacados"
+    : esNuevos
+      ? "Lo más nuevo"
+      : categoria
+        ? categoria.nombre
+        : "Catálogo completo";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="mb-6">
-        <h1 className="font-heading text-3xl font-bold text-ink">
-          {categoria ? categoria.nombre : "Catálogo completo"}
-        </h1>
+        <h1 className="font-heading text-3xl font-bold text-ink">{titulo}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {productos.length} producto{productos.length !== 1 ? "s" : ""} encontrado
           {productos.length !== 1 ? "s" : ""}

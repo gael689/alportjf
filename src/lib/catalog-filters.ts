@@ -10,6 +10,10 @@ export type CatalogFiltros = {
   min?: number;
   max?: number;
   sort?: CatalogSort;
+  /** solo productos destacados */
+  destacado?: boolean;
+  /** solo productos nuevos */
+  nuevo?: boolean;
 };
 
 export const PRECIO_MIN_DEFAULT = 0;
@@ -17,13 +21,21 @@ export const PRECIO_MAX_DEFAULT = 1_000_000;
 
 export function filtrarYOrdenarProductos(
   productos: Producto[],
-  { cat, q, min, max, sort }: CatalogFiltros
+  { cat, q, min, max, sort, destacado, nuevo }: CatalogFiltros
 ): Producto[] {
   let resultado = [...productos];
 
   if (cat) {
     const categoria = getCategoriaBySlug(cat);
     resultado = resultado.filter((p) => p.categoriaId === categoria?.id);
+  }
+
+  if (destacado) {
+    resultado = resultado.filter((p) => p.destacado);
+  }
+
+  if (nuevo) {
+    resultado = resultado.filter((p) => p.nuevo);
   }
 
   if (q && q.trim()) {

@@ -6,7 +6,6 @@ import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import type { Producto } from "@/data/types";
 import { formatPrice, calcularDescuento } from "@/lib/format";
 import { useCartStore } from "@/store/cart-store";
-import { whatsappConsultaProducto } from "@/lib/whatsapp";
 import { OfferCountdown } from "@/components/product/offer-countdown";
 import { Button } from "@/components/ui/button";
 
@@ -19,7 +18,6 @@ export function ProductCard({ producto }: { producto: Producto }) {
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white transition-shadow hover:shadow-md">
-      {tieneOferta && <div className="h-1 w-full bg-brand" />}
       <Link
         href={`/producto/${producto.slug}`}
         className="relative block aspect-square bg-white"
@@ -55,13 +53,13 @@ export function ProductCard({ producto }: { producto: Producto }) {
           </h3>
         </Link>
 
-        <div className="mt-1 flex flex-col gap-0.5">
+        <div className="mt-1 flex flex-col">
           {tieneOferta ? (
             <>
-              <span className="text-sm text-muted-foreground line-through">
+              <span className="text-xs leading-none text-muted-foreground line-through">
                 {formatPrice(producto.precio)}
               </span>
-              <span className="text-xl font-extrabold text-brand">
+              <span className="text-xl font-extrabold leading-tight text-brand">
                 {formatPrice(producto.precioPromo!)}
               </span>
             </>
@@ -76,7 +74,7 @@ export function ProductCard({ producto }: { producto: Producto }) {
           <OfferCountdown ofertaHasta={producto.ofertaHasta} className="mt-0.5 w-fit" />
         )}
 
-        <div className="mt-auto flex flex-col gap-2 pt-3">
+        <div className="mt-auto pt-3">
           <Button
             size="sm"
             className="h-auto w-full whitespace-normal py-2 text-center leading-tight bg-brand text-white hover:bg-brand-dark"
@@ -84,24 +82,6 @@ export function ProductCard({ producto }: { producto: Producto }) {
           >
             <ShoppingCartIcon className="size-4 shrink-0" />
             Agregar al pedido
-          </Button>
-          <Button
-            render={
-              <a
-                href={whatsappConsultaProducto(
-                  producto.nombre,
-                  `https://alportjfpuan.com.ar/producto/${producto.slug}`
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-              />
-            }
-            nativeButton={false}
-            size="sm"
-            variant="outline"
-            className="h-auto w-full whitespace-normal py-2 text-center leading-tight border-success text-success hover:bg-success/10"
-          >
-            Consultar por WhatsApp
           </Button>
         </div>
       </div>

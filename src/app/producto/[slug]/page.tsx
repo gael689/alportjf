@@ -111,7 +111,7 @@ export default async function ProductoPage({ params }: { params: Params }) {
                 <span className="text-base text-muted-foreground line-through">
                   {formatPrice(producto.precio)}
                 </span>
-                <span className="text-4xl font-extrabold text-success">
+                <span className="text-4xl font-extrabold text-brand">
                   {formatPrice(producto.precioPromo!)}
                 </span>
               </>

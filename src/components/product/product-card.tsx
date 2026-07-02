@@ -60,7 +60,7 @@ export function ProductCard({ producto }: { producto: Producto }) {
               <span className="text-sm text-muted-foreground line-through">
                 {formatPrice(producto.precio)}
               </span>
-              <span className="text-xl font-extrabold text-success">
+              <span className="text-xl font-extrabold text-brand">
                 {formatPrice(producto.precioPromo!)}
               </span>
             </>
@@ -78,10 +78,10 @@ export function ProductCard({ producto }: { producto: Producto }) {
         <div className="mt-auto flex flex-col gap-2 pt-3">
           <Button
             size="sm"
-            className="w-full bg-brand text-white hover:bg-brand-dark"
+            className="h-auto w-full whitespace-normal py-2 text-center leading-tight bg-brand text-white hover:bg-brand-dark"
             onClick={() => addItem(producto, 1)}
           >
-            <ShoppingCartIcon className="size-4" />
+            <ShoppingCartIcon className="size-4 shrink-0" />
             Agregar al pedido
           </Button>
           <Button
@@ -98,7 +98,7 @@ export function ProductCard({ producto }: { producto: Producto }) {
             nativeButton={false}
             size="sm"
             variant="outline"
-            className="w-full border-success text-success hover:bg-success/10"
+            className="h-auto w-full whitespace-normal py-2 text-center leading-tight border-success text-success hover:bg-success/10"
           >
             Consultar por WhatsApp
           </Button>

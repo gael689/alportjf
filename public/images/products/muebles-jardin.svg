@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="bg-muebles-jardin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F5E9E9"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg-muebles-jardin)"/>
+  <circle cx="400" cy="400" r="220" fill="#F5E9E9" opacity="0.6"/>
+  <g transform="translate(400,400) scale(11.5) translate(-12,-12)">
+    <path d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" fill="none" stroke="#9A3334" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

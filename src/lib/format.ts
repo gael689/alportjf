@@ -4,7 +4,8 @@ const currencyFormatter = new Intl.NumberFormat("es-AR", {
   maximumFractionDigits: 0,
 });
 
-export function formatPrice(value: number): string {
+export function formatPrice(value: number | null): string {
+  if (value === null) return "Consultar precio";
   return currencyFormatter.format(value);
 }
 

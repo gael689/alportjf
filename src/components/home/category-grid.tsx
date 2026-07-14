@@ -1,15 +1,18 @@
 import Link from "next/link";
-import { CATEGORIAS } from "@/data/categorias";
+import { getCategoriasDestacadas } from "@/data/categorias";
 import { CategoryIcon } from "@/lib/category-icons";
 
-export function CategoryGrid() {
+export async function CategoryGrid() {
+  const categorias = await getCategoriasDestacadas();
+  if (categorias.length === 0) return null;
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
       <h2 className="mb-5 font-heading text-2xl font-bold text-ink sm:text-3xl">
         Categorías
       </h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {CATEGORIAS.map((cat) => (
+        {categorias.map((cat) => (
           <Link
             key={cat.id}
             href={`/productos?cat=${cat.slug}`}

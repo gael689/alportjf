@@ -69,7 +69,12 @@ export function cartTotalItems(items: CartItem[]): number {
 
 export function cartTotalPrice(items: CartItem[]): number {
   return items.reduce(
-    (acc, i) => acc + (i.producto.precioPromo ?? i.producto.precio) * i.cantidad,
+    (acc, i) => acc + (i.producto.precioPromo ?? i.producto.precio ?? 0) * i.cantidad,
     0
   );
+}
+
+/** Total sin aplicar ninguna promoción, para mostrar el ahorro total del pedido. */
+export function cartTotalPriceSinDescuento(items: CartItem[]): number {
+  return items.reduce((acc, i) => acc + (i.producto.precio ?? 0) * i.cantidad, 0);
 }

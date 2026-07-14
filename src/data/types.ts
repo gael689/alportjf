@@ -4,6 +4,9 @@ export type Categoria = {
   nombre: string;
   /** Nombre del ícono de Heroicons (24/outline), resuelto en lib/category-icons.tsx */
   icono: string;
+  /** Se muestra en la grilla de categorías destacadas de la home */
+  destacada: boolean;
+  activo: boolean;
 };
 
 export type Producto = {
@@ -15,8 +18,8 @@ export type Producto = {
   descripcionLarga?: string;
   categoriaId: string;
   imagen: string;
-  /** Precio normal en ARS */
-  precio: number;
+  /** Precio normal en ARS. null = "sin precio", se muestra "Consultar precio" */
+  precio: number | null;
   /** Precio promocional en ARS, si aplica */
   precioPromo?: number;
   /** Fecha ISO de vencimiento de la oferta, activa el contador */
@@ -28,7 +31,8 @@ export type Producto = {
 
 export type PromoBanner = {
   id: string;
-  imagenDesktop?: string;
+  /** Imagen de fondo opcional, subida desde el panel (si no hay, se usa colorFondo/colorTexto) */
+  imagenUrl?: string;
   titulo: string;
   subtitulo?: string;
   etiqueta?: string;

@@ -9,7 +9,7 @@ import {
   TagIcon,
 } from "@heroicons/react/24/outline";
 import { SITE, NAV_LINKS } from "@/lib/site-config";
-import { CATEGORIAS } from "@/data/categorias";
+import { getAllCategorias } from "@/data/categorias";
 import { CategoryIcon } from "@/lib/category-icons";
 import { SearchBar } from "@/components/layout/search-bar";
 import { CartButton } from "@/components/layout/cart-button";
@@ -21,7 +21,9 @@ const ACCESOS_ESPECIALES = [
   { href: "/promociones", label: "Promociones", icono: TagIcon },
 ];
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const categorias = await getAllCategorias();
+
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-white">
       {/* Top bar de confianza */}
@@ -45,7 +47,7 @@ export function SiteHeader() {
 
       {/* Header principal */}
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
-        <MobileNav />
+        <MobileNav categorias={categorias} />
 
         <Link href="/" className="shrink-0">
           <Image
@@ -105,7 +107,7 @@ export function SiteHeader() {
 
           <span className="mx-1 h-5 w-px shrink-0 bg-border" aria-hidden="true" />
 
-          {CATEGORIAS.map((cat) => (
+          {categorias.map((cat) => (
             <Link
               key={cat.id}
               href={`/productos?cat=${cat.slug}`}

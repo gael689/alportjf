@@ -1,10 +1,10 @@
 import {
   TruckIcon,
   CreditCardIcon,
-  ChatBubbleLeftRightIcon,
+  SparklesIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
-import { SITE } from "@/lib/site-config";
+import { SITE, antiguedadAnios } from "@/lib/site-config";
 
 const ITEMS = [
   {
@@ -18,9 +18,9 @@ const ITEMS = [
     detalle: "Efectivo, transferencia y tarjetas",
   },
   {
-    icono: ChatBubbleLeftRightIcon,
-    titulo: "Atención personalizada",
-    detalle: "Coordinamos tu pedido por WhatsApp",
+    icono: SparklesIcon,
+    titulo: `${antiguedadAnios()} años de trayectoria`,
+    detalle: `Acompañando a Puan desde ${SITE.desde}`,
   },
   {
     icono: MapPinIcon,

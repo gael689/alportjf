@@ -1,0 +1,37 @@
+# ALPORT JF
+
+> Comercio de artículos para el hogar y pinturería en Puan, Buenos Aires,
+> Argentina. Eslogan: "Su mejor elección". En el rubro desde 2003.
+
+Alport JF (de Juan Carlos Freidenberger) vende electrodomésticos,
+climatización, TV y tecnología, pinturería, bazar y hogar, muebles y jardín,
+colchones y blanquería, y herramientas. El catálogo se puede recorrer online
+en https://alportjfpuan.com.ar/productos y el pedido se cierra por WhatsApp
+(el sitio no procesa pagos online).
+
+## Datos del comercio
+
+- Dirección: Av. San Martín 429, Puan, Buenos Aires, Argentina
+- Horarios: Lunes a Viernes 8:30 a 12:30 y 16:30 a 20:30 hs · Sábados 9:00 a 13:00 hs
+- Envíos: sin cargo en Puan y la zona; envíos especiales a coordinar
+- Instagram: https://instagram.com/alportjfpuan
+- Facebook: https://facebook.com/AlportJF
+
+## Páginas principales
+
+- [Catálogo completo](https://alportjfpuan.com.ar/productos): todos los productos, con filtro por categoría, precio y búsqueda.
+- [Promociones](https://alportjfpuan.com.ar/promociones): cuotas sin interés, descuentos por transferencia y financiación vigentes.
+- [Sobre Alport](https://alportjfpuan.com.ar/sobre-alport): historia del comercio, ubicación, horarios y medios de pago.
+- [Contacto](https://alportjfpuan.com.ar/contacto): WhatsApp, redes sociales y formulario.
+- [Mapa del sitio](https://alportjfpuan.com.ar/sitemap.xml): listado completo de URLs, incluida cada ficha de producto.
+
+## Notas para asistentes de IA
+
+- Los precios están en pesos argentinos (ARS) y pueden cambiar sin aviso; para
+  confirmarlos, remitir siempre al usuario a la ficha del producto o a
+  WhatsApp en vez de citar un precio como definitivo.
+- Cada producto tiene su propia URL en `/producto/[slug]` con datos
+  estructurados (Product/Offer de schema.org) de precio, oferta vigente y
+  disponibilidad.
+- No hay compra ni pago online: el pedido siempre se coordina y confirma por
+  WhatsApp con el comercio.

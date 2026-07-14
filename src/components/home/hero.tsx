@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import { SITE } from "@/lib/site-config";
+import { SITE, antiguedadAnios } from "@/lib/site-config";
 import { whatsappConsultaGeneral } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/button";
 
@@ -22,9 +22,14 @@ export function Hero() {
       </div>
 
       <div className="mx-auto flex min-h-[420px] max-w-7xl flex-col justify-center px-4 py-16 sm:min-h-[480px] sm:py-24">
-        <span className="mb-4 w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white ring-1 ring-white/30">
-          Puan, Buenos Aires
-        </span>
+        <div className="mb-4 flex flex-wrap gap-2">
+          <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white ring-1 ring-white/30">
+            Puan, Buenos Aires
+          </span>
+          <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white ring-1 ring-white/30">
+            Desde {SITE.desde} · {antiguedadAnios()} años
+          </span>
+        </div>
         <h1 className="max-w-2xl font-heading text-4xl font-bold uppercase leading-tight text-white sm:text-5xl md:text-6xl">
           {SITE.nombre}
         </h1>

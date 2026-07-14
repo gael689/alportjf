@@ -1,11 +1,10 @@
 import type { Producto } from "@/data/types";
-import { getCategoriaBySlug } from "@/data/categorias";
 
 export type CatalogSort = "relevancia" | "menor-precio" | "mayor-precio" | "nuevo" | "descuento";
 
 export type CatalogFiltros = {
-  /** slug de la categoría (ej. "electrodomesticos") */
-  cat?: string;
+  /** id de la categoría ya resuelto (el caller busca el slug -> categoría antes de filtrar) */
+  categoriaId?: string;
   q?: string;
   min?: number;
   max?: number;
@@ -21,13 +20,12 @@ export const PRECIO_MAX_DEFAULT = 1_000_000;
 
 export function filtrarYOrdenarProductos(
   productos: Producto[],
-  { cat, q, min, max, sort, destacado, nuevo }: CatalogFiltros
+  { categoriaId, q, min, max, sort, destacado, nuevo }: CatalogFiltros
 ): Producto[] {
   let resultado = [...productos];
 
-  if (cat) {
-    const categoria = getCategoriaBySlug(cat);
-    resultado = resultado.filter((p) => p.categoriaId === categoria?.id);
+  if (categoriaId) {
+    resultado = resultado.filter((p) => p.categoriaId === categoriaId);
   }
 
   if (destacado) {
@@ -48,31 +46,46 @@ export function filtrarYOrdenarProductos(
   }
 
   if (typeof min === "number") {
-    resultado = resultado.filter((p) => (p.precioPromo ?? p.precio) >= min);
+    resultado = resultado.filter((p) => {
+      const precio = p.precioPromo ?? p.precio;
+      return precio === null || precio >= min;
+    });
   }
 
   if (typeof max === "number") {
-    resultado = resultado.filter((p) => (p.precioPromo ?? p.precio) <= max);
+    resultado = resultado.filter((p) => {
+      const precio = p.precioPromo ?? p.precio;
+      return precio === null || precio <= max;
+    });
   }
 
+  // Los productos sin precio ("consultar") quedan siempre al final al ordenar por precio.
   switch (sort) {
     case "menor-precio":
-      resultado.sort(
-        (a, b) => (a.precioPromo ?? a.precio) - (b.precioPromo ?? b.precio)
-      );
+      resultado.sort((a, b) => {
+        const precioA = a.precioPromo ?? a.precio;
+        const precioB = b.precioPromo ?? b.precio;
+        if (precioA === null) return precioB === null ? 0 : 1;
+        if (precioB === null) return -1;
+        return precioA - precioB;
+      });
       break;
     case "mayor-precio":
-      resultado.sort(
-        (a, b) => (b.precioPromo ?? b.precio) - (a.precioPromo ?? a.precio)
-      );
+      resultado.sort((a, b) => {
+        const precioA = a.precioPromo ?? a.precio;
+        const precioB = b.precioPromo ?? b.precio;
+        if (precioA === null) return precioB === null ? 0 : 1;
+        if (precioB === null) return -1;
+        return precioB - precioA;
+      });
       break;
     case "nuevo":
       resultado.sort((a, b) => Number(b.nuevo) - Number(a.nuevo));
       break;
     case "descuento":
       resultado.sort((a, b) => {
-        const descA = a.precioPromo ? 1 - a.precioPromo / a.precio : 0;
-        const descB = b.precioPromo ? 1 - b.precioPromo / b.precio : 0;
+        const descA = a.precioPromo && a.precio ? 1 - a.precioPromo / a.precio : 0;
+        const descB = b.precioPromo && b.precio ? 1 - b.precioPromo / b.precio : 0;
         return descB - descA;
       });
       break;

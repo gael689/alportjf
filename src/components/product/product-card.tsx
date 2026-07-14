@@ -2,18 +2,35 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import type { Producto } from "@/data/types";
 import { formatPrice, calcularDescuento } from "@/lib/format";
 import { useCartStore } from "@/store/cart-store";
 import { OfferCountdown } from "@/components/product/offer-countdown";
+import { PromoPrice } from "@/components/product/promo-price";
 import { Button } from "@/components/ui/button";
 
 export function ProductCard({ producto }: { producto: Producto }) {
   const addItem = useCartStore((s) => s.addItem);
-  const tieneOferta = !!producto.precioPromo && producto.precioPromo < producto.precio;
+  const openCart = useCartStore((s) => s.open);
+
+  function handleAgregar() {
+    addItem(producto, 1);
+    toast.success(`${producto.nombre} se agregó al pedido`, {
+      icon: <CheckCircleIcon className="size-5 text-success" />,
+      action: {
+        label: "Ver pedido",
+        onClick: () => openCart(),
+      },
+    });
+  }
+  const tienePrecio = producto.precio !== null;
+  const tieneOferta =
+    tienePrecio && !!producto.precioPromo && producto.precioPromo < producto.precio!;
   const descuento = tieneOferta
-    ? calcularDescuento(producto.precio, producto.precioPromo!)
+    ? calcularDescuento(producto.precio!, producto.precioPromo!)
     : 0;
 
   return (
@@ -55,16 +72,15 @@ export function ProductCard({ producto }: { producto: Producto }) {
 
         <div className="mt-1 flex flex-col">
           {tieneOferta ? (
-            <>
-              <span className="text-xs leading-none text-muted-foreground line-through">
-                {formatPrice(producto.precio)}
-              </span>
-              <span className="text-xl font-extrabold leading-tight text-brand">
-                {formatPrice(producto.precioPromo!)}
-              </span>
-            </>
+            <PromoPrice precio={producto.precio!} precioPromo={producto.precioPromo!} />
           ) : (
-            <span className="text-xl font-extrabold text-ink">
+            <span
+              className={
+                tienePrecio
+                  ? "text-xl font-extrabold text-ink"
+                  : "text-base font-semibold text-muted-foreground"
+              }
+            >
               {formatPrice(producto.precio)}
             </span>
           )}
@@ -78,7 +94,7 @@ export function ProductCard({ producto }: { producto: Producto }) {
           <Button
             size="sm"
             className="h-auto w-full whitespace-normal py-2 text-center leading-tight bg-brand text-white hover:bg-brand-dark"
-            onClick={() => addItem(producto, 1)}
+            onClick={handleAgregar}
           >
             <ShoppingCartIcon className="size-4 shrink-0" />
             Agregar al pedido

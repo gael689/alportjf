@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { Bars3Icon, StarIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { SITE, NAV_LINKS } from "@/lib/site-config";
-import { CATEGORIAS } from "@/data/categorias";
+import type { Categoria } from "@/data/types";
 import { CategoryIcon } from "@/lib/category-icons";
 import { whatsappConsultaGeneral } from "@/lib/whatsapp";
 
@@ -20,7 +20,7 @@ const ACCESOS_ESPECIALES = [
   { href: "/productos?nuevo=1", label: "Lo nuevo", icono: SparklesIcon },
 ];
 
-export function MobileNav() {
+export function MobileNav({ categorias }: { categorias: Categoria[] }) {
   return (
     <Sheet>
       <SheetTrigger
@@ -71,7 +71,7 @@ export function MobileNav() {
             Categorías
           </p>
           <div className="flex flex-col gap-1">
-            {CATEGORIAS.map((cat) => (
+            {categorias.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/productos?cat=${cat.slug}`}

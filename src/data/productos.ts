@@ -1,270 +1,142 @@
 import type { Producto } from "@/data/types";
+import { PRODUCTOS_SEED } from "@/data/productos.seed";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { createClient } from "@/lib/supabase/server";
 
-function horasDesdeAhora(horas: number): string {
-  return new Date(Date.now() + horas * 60 * 60 * 1000).toISOString();
+const SELECT_PRODUCTO = "*, categorias(slug), producto_imagenes(storage_path, orden)";
+
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+
+type ProductoRow = {
+  id: string;
+  slug: string;
+  nombre: string;
+  marca: string | null;
+  descripcion: string;
+  descripcion_larga: string | null;
+  categoria_id: string;
+  precio: number | string | null;
+  precio_promo: number | string | null;
+  oferta_hasta: string | null;
+  destacado: boolean;
+  nuevo: boolean;
+  stock: number | null;
+  categorias: { slug: string } | null;
+  producto_imagenes: { storage_path: string; orden: number }[];
+};
+
+function resolveImagen(row: ProductoRow, supabase: SupabaseServerClient): string {
+  const [principal] = [...row.producto_imagenes].sort((a, b) => a.orden - b.orden);
+  if (principal) {
+    return supabase.storage.from("productos").getPublicUrl(principal.storage_path).data
+      .publicUrl;
+  }
+  // Sin fotos cargadas todavía: se muestra el ícono genérico de la categoría.
+  const categoriaSlug = row.categorias?.slug ?? "bazar-hogar";
+  return `/images/products/${categoriaSlug}.svg`;
 }
 
-function minutosDesdeAhora(minutos: number): string {
-  return new Date(Date.now() + minutos * 60 * 1000).toISOString();
+function mapRow(row: ProductoRow, supabase: SupabaseServerClient): Producto {
+  return {
+    id: row.id,
+    slug: row.slug,
+    nombre: row.nombre,
+    marca: row.marca ?? undefined,
+    descripcion: row.descripcion,
+    descripcionLarga: row.descripcion_larga ?? undefined,
+    categoriaId: row.categoria_id,
+    imagen: resolveImagen(row, supabase),
+    precio: row.precio === null ? null : Number(row.precio),
+    precioPromo: row.precio_promo === null ? undefined : Number(row.precio_promo),
+    ofertaHasta: row.oferta_hasta ?? undefined,
+    destacado: row.destacado,
+    nuevo: row.nuevo,
+    stock: row.stock ?? undefined,
+  };
 }
 
-export const PRODUCTOS: Producto[] = [
-  {
-    id: "prod-1",
-    slug: "heladera-no-frost-375l-electrolux",
-    nombre: "Heladera No Frost 375L",
-    marca: "Electrolux",
-    descripcion: "Heladera No Frost con freezer superior, bajo consumo y amplia capacidad.",
-    descripcionLarga:
-      "Heladera No Frost de 375 litros, ideal para familias grandes. Freezer superior, estantes graduables, cíclica automática y bajo consumo energético clase A. Terminación acero inoxidable.",
-    categoriaId: "cat-1",
-    imagen: "/images/products/electrodomesticos.svg",
-    precio: 850000,
-    precioPromo: 720000,
-    ofertaHasta: horasDesdeAhora(120),
-    destacado: true,
-    nuevo: false,
-    stock: 4,
-  },
-  {
-    id: "prod-2",
-    slug: "microondas-grill-20l-bgh",
-    nombre: "Microondas Grill 20L",
-    marca: "BGH",
-    descripcion: "Microondas con función grill, 10 niveles de potencia y panel digital.",
-    categoriaId: "cat-1",
-    imagen: "/images/products/electrodomesticos.svg",
-    precio: 180000,
-    destacado: false,
-    nuevo: true,
-    stock: 10,
-  },
-  {
-    id: "prod-3",
-    slug: "lavarropas-carga-frontal-8kg-drean",
-    nombre: "Lavarropas Carga Frontal 8kg",
-    marca: "Drean",
-    descripcion: "Lavarropas automático carga frontal, 1200 RPM, múltiples programas de lavado.",
-    categoriaId: "cat-1",
-    imagen: "/images/products/electrodomesticos.svg",
-    precio: 620000,
-    destacado: true,
-    nuevo: false,
-    stock: 6,
-  },
-  {
-    id: "prod-4",
-    slug: "aire-acondicionado-split-3000fc-surrey",
-    nombre: "Aire Acondicionado Split Frío/Calor 3000F",
-    marca: "Surrey",
-    descripcion: "Split frío/calor, tecnología inverter, control remoto y bajo consumo.",
-    descripcionLarga:
-      "Aire acondicionado split frío/calor de 3000 frigorías, tecnología inverter para mayor eficiencia energética. Incluye control remoto, filtro purificador y modo sueño.",
-    categoriaId: "cat-2",
-    imagen: "/images/products/climatizacion.svg",
-    precio: 950000,
-    precioPromo: 799000,
-    ofertaHasta: horasDesdeAhora(18),
-    destacado: true,
-    nuevo: false,
-    stock: 3,
-  },
-  {
-    id: "prod-5",
-    slug: "ventilador-de-pie-20-sigma",
-    nombre: 'Ventilador de Pie 20"',
-    marca: "Sigma",
-    descripcion: "Ventilador de pie con 3 velocidades, oscilación automática y altura regulable.",
-    categoriaId: "cat-2",
-    imagen: "/images/products/climatizacion.svg",
-    precio: 65000,
-    destacado: false,
-    nuevo: true,
-    stock: 12,
-  },
-  {
-    id: "prod-6",
-    slug: "estufa-a-gas-tiro-balanceado-emege",
-    nombre: "Estufa a Gas Tiro Balanceado",
-    marca: "Emege",
-    descripcion: "Estufa a gas de tiro balanceado, 4000 kcal/h, para ambientes medianos.",
-    categoriaId: "cat-2",
-    imagen: "/images/products/climatizacion.svg",
-    precio: 210000,
-    destacado: false,
-    nuevo: false,
-    stock: 5,
-  },
-  {
-    id: "prod-7",
-    slug: "smart-tv-50-4k-noblex",
-    nombre: 'Smart TV 50" 4K UHD',
-    marca: "Noblex",
-    descripcion: "Smart TV 4K con Android TV, HDR y Bluetooth integrado.",
-    descripcionLarga:
-      "Smart TV de 50 pulgadas con resolución 4K UHD, sistema Android TV con acceso a todas tus apps, HDR10, Bluetooth para auriculares y control remoto con comando de voz.",
-    categoriaId: "cat-3",
-    imagen: "/images/products/tv-tecnologia.svg",
-    precio: 780000,
-    precioPromo: 699000,
-    ofertaHasta: horasDesdeAhora(72),
-    destacado: true,
-    nuevo: false,
-    stock: 7,
-  },
-  {
-    id: "prod-8",
-    slug: "smart-tv-32-hd-tcl",
-    nombre: 'Smart TV 32" HD',
-    marca: "TCL",
-    descripcion: "Smart TV HD ideal para dormitorios y cocina, con Wi-Fi integrado.",
-    categoriaId: "cat-3",
-    imagen: "/images/products/tv-tecnologia.svg",
-    precio: 320000,
-    destacado: false,
-    nuevo: true,
-    stock: 9,
-  },
-  {
-    id: "prod-9",
-    slug: "latex-interior-20l-tersuave",
-    nombre: "Látex Interior Premium 20L",
-    marca: "Tersuave",
-    descripcion: "Látex interior lavable, alto rendimiento y excelente cubritividad.",
-    descripcionLarga:
-      "Látex para interiores de la línea premium Tersuave. Alto rendimiento (hasta 12m²/L por mano), terminación mate lavable, disponible en blanco y colores a pedido.",
-    categoriaId: "cat-4",
-    imagen: "/images/products/pintureria.svg",
-    precio: 145000,
-    precioPromo: 120000,
-    ofertaHasta: minutosDesdeAhora(40),
-    destacado: true,
-    nuevo: false,
-    stock: 15,
-  },
-  {
-    id: "prod-10",
-    slug: "esmalte-sintetico-1l-tersuave",
-    nombre: "Esmalte Sintético Brillante 1L",
-    marca: "Tersuave",
-    descripcion: "Esmalte sintético de gran cubrición y terminación brillante para madera y metal.",
-    categoriaId: "cat-4",
-    imagen: "/images/products/pintureria.svg",
-    precio: 18000,
-    destacado: false,
-    nuevo: false,
-    stock: 25,
-  },
-  {
-    id: "prod-11",
-    slug: "set-de-ollas-x7-essen",
-    nombre: "Set de Ollas x7 Piezas",
-    marca: "Essen",
-    descripcion: "Juego de ollas de aluminio antiadherente, aptas para todo tipo de cocinas.",
-    categoriaId: "cat-5",
-    imagen: "/images/products/bazar-hogar.svg",
-    precio: 210000,
-    destacado: false,
-    nuevo: true,
-    stock: 8,
-  },
-  {
-    id: "prod-12",
-    slug: "juego-de-sabanas-queen-cannon",
-    nombre: "Juego de Sábanas Queen",
-    marca: "Cannon",
-    descripcion: "Sábanas 100% algodón, terminación satinada, incluye funda de almohada.",
-    categoriaId: "cat-7",
-    imagen: "/images/products/colchones-blanqueria.svg",
-    precio: 55000,
-    precioPromo: 42000,
-    ofertaHasta: horasDesdeAhora(48),
-    destacado: true,
-    nuevo: false,
-    stock: 20,
-  },
-  {
-    id: "prod-13",
-    slug: "colchon-queen-resortes-cannon",
-    nombre: "Colchón Queen Resortes Pocket",
-    marca: "Cannon",
-    descripcion: "Colchón de resortes pocket, alta densidad, doble faz verano/invierno.",
-    descripcionLarga:
-      "Colchón Queen 160x200 con sistema de resortes pocket independientes que reducen la transmisión de movimiento. Doble faz verano/invierno y funda acolchada antialérgica.",
-    categoriaId: "cat-7",
-    imagen: "/images/products/colchones-blanqueria.svg",
-    precio: 480000,
-    destacado: false,
-    nuevo: true,
-    stock: 5,
-  },
-  {
-    id: "prod-14",
-    slug: "reposera-playera-aluminio-x2",
-    nombre: "Reposera Playera Aluminio (Par)",
-    descripcion: "Set de 2 reposeras de aluminio con respaldo reclinable en 5 posiciones.",
-    categoriaId: "cat-6",
-    imagen: "/images/products/muebles-jardin.svg",
-    precio: 89000,
-    destacado: false,
-    nuevo: false,
-    stock: 14,
-  },
-  {
-    id: "prod-15",
-    slug: "juego-mesa-sillas-jardin-x4",
-    nombre: "Juego de Mesa y 4 Sillas de Jardín",
-    descripcion: "Set de jardín en resina, resistente a la intemperie, fácil de limpiar.",
-    categoriaId: "cat-6",
-    imagen: "/images/products/muebles-jardin.svg",
-    precio: 350000,
-    destacado: true,
-    nuevo: false,
-    stock: 4,
-  },
-  {
-    id: "prod-16",
-    slug: "cortadora-de-cesped-a-nafta",
-    nombre: "Cortadora de Césped a Nafta",
-    descripcion: "Motor a nafta 4 tiempos, cesto recolector y altura de corte regulable.",
-    descripcionLarga:
-      "Cortadora de césped con motor a nafta de 4 tiempos, cesto recolector desmontable, 6 posiciones de altura de corte y ruedas reforzadas. Ideal para jardines medianos y grandes.",
-    categoriaId: "cat-8",
-    imagen: "/images/products/herramientas.svg",
-    precio: 420000,
-    precioPromo: 375000,
-    ofertaHasta: horasDesdeAhora(144),
-    destacado: false,
-    nuevo: false,
-    stock: 3,
-  },
-  {
-    id: "prod-17",
-    slug: "taladro-percutor-black-decker",
-    nombre: 'Taladro Percutor 1/2"',
-    marca: "Black+Decker",
-    descripcion: "Taladro percutor con reversa, incluye maletín y set de mechas.",
-    categoriaId: "cat-8",
-    imagen: "/images/products/herramientas.svg",
-    precio: 95000,
-    destacado: false,
-    nuevo: true,
-    stock: 11,
-  },
-];
+/** Todos los productos activos. */
+export async function getAllProductos(): Promise<Producto[]> {
+  if (!isSupabaseConfigured()) return PRODUCTOS_SEED;
 
-export function getProductoBySlug(slug: string): Producto | undefined {
-  return PRODUCTOS.find((p) => p.slug === slug);
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("productos")
+    .select(SELECT_PRODUCTO)
+    .eq("activo", true)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return PRODUCTOS_SEED;
+  return (data as ProductoRow[]).map((row) => mapRow(row, supabase));
 }
 
-export function getProductosByCategoria(categoriaId: string): Producto[] {
-  return PRODUCTOS.filter((p) => p.categoriaId === categoriaId);
+export async function getProductoBySlug(slug: string): Promise<Producto | undefined> {
+  if (!isSupabaseConfigured()) return PRODUCTOS_SEED.find((p) => p.slug === slug);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("productos")
+    .select(SELECT_PRODUCTO)
+    .eq("slug", slug)
+    .eq("activo", true)
+    .maybeSingle();
+
+  if (error || !data) return undefined;
+  return mapRow(data as ProductoRow, supabase);
 }
 
-export function getDestacados(): Producto[] {
-  return PRODUCTOS.filter((p) => p.destacado);
+export async function getProductosByCategoria(categoriaId: string): Promise<Producto[]> {
+  const todos = await getAllProductos();
+  return todos.filter((p) => p.categoriaId === categoriaId);
 }
 
-export function getNuevos(): Producto[] {
-  return PRODUCTOS.filter((p) => p.nuevo);
+export async function getDestacados(): Promise<Producto[]> {
+  const todos = await getAllProductos();
+  return todos.filter((p) => p.destacado);
+}
+
+export async function getNuevos(): Promise<Producto[]> {
+  const todos = await getAllProductos();
+  return todos.filter((p) => p.nuevo);
+}
+
+function tieneOfertaActiva(p: Producto): boolean {
+  if (p.precio === null || !p.precioPromo || p.precioPromo >= p.precio) return false;
+  if (p.ofertaHasta && new Date(p.ofertaHasta).getTime() <= Date.now()) return false;
+  return true;
+}
+
+/**
+ * Productos recomendados para la ficha de producto ("También te puede interesar").
+ * Prioriza la misma categoría, pero siempre incluye al menos un producto en oferta
+ * activa si existe alguno en el catálogo (para incentivar la venta).
+ */
+export async function getRecomendados(
+  producto: Producto,
+  cantidad = 4
+): Promise<Producto[]> {
+  const todos = await getAllProductos();
+  const candidatos = todos.filter((p) => p.id !== producto.id);
+
+  const porOferta = (a: Producto, b: Producto) =>
+    Number(tieneOfertaActiva(b)) - Number(tieneOfertaActiva(a));
+
+  const mismaCategoria = candidatos
+    .filter((p) => p.categoriaId === producto.categoriaId)
+    .sort(porOferta);
+  const otrasCategorias = candidatos
+    .filter((p) => p.categoriaId !== producto.categoriaId)
+    .sort(porOferta);
+
+  const ordenados = [...mismaCategoria, ...otrasCategorias];
+  const seleccion = ordenados.slice(0, cantidad);
+
+  if (seleccion.length === cantidad && !seleccion.some(tieneOfertaActiva)) {
+    const conOferta = ordenados.find(
+      (p) => tieneOfertaActiva(p) && !seleccion.includes(p)
+    );
+    if (conOferta) seleccion[seleccion.length - 1] = conOferta;
+  }
+
+  return seleccion;
 }

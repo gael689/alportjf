@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState } from "react";
-import { CATEGORIAS } from "@/data/categorias";
+import type { Categoria } from "@/data/types";
 import { formatPrice } from "@/lib/format";
 import { PRECIO_MAX_DEFAULT, PRECIO_MIN_DEFAULT } from "@/lib/catalog-filters";
 import { Slider } from "@/components/ui/slider";
@@ -23,7 +23,7 @@ const ORDEN_OPCIONES = [
   { value: "descuento", label: "Mayor descuento" },
 ];
 
-export function ProductFilters() {
+export function ProductFilters({ categorias }: { categorias: Categoria[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -79,7 +79,7 @@ export function ProductFilters() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todas">Todas las categorías</SelectItem>
-            {CATEGORIAS.map((cat) => (
+            {categorias.map((cat) => (
               <SelectItem key={cat.id} value={cat.slug}>
                 {cat.nombre}
               </SelectItem>

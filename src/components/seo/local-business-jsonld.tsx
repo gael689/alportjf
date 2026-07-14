@@ -9,8 +9,11 @@ export function LocalBusinessJsonLd() {
     description:
       "Artículos para el hogar y pinturería en Puan, Buenos Aires: electrodomésticos, climatización, TV, pinturería, bazar, muebles, colchones y herramientas.",
     url: `https://${SITE.dominio}`,
+    image: `https://${SITE.dominio}/images/local-fachada.jpg`,
     telephone: SITE.telefonoFijo,
     email: SITE.mail,
+    priceRange: "$$",
+    foundingDate: String(SITE.desde),
     address: {
       "@type": "PostalAddress",
       streetAddress: "Av. San Martín 429",

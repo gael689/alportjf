@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { MinusIcon, PlusIcon, ShoppingCartIcon } from "@heroicons/react/24/outline";
 import type { Producto } from "@/data/types";
 import { useCartStore } from "@/store/cart-store";
@@ -9,6 +11,19 @@ import { Button } from "@/components/ui/button";
 export function AddToCartButton({ producto }: { producto: Producto }) {
   const [cantidad, setCantidad] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
+  const openCart = useCartStore((s) => s.open);
+
+  function handleAgregar() {
+    addItem(producto, cantidad);
+    toast.success(`${producto.nombre} se agregó al pedido`, {
+      icon: <CheckCircleIcon className="size-5 text-success" />,
+      description: cantidad > 1 ? `Cantidad: ${cantidad}` : undefined,
+      action: {
+        label: "Ver pedido",
+        onClick: () => openCart(),
+      },
+    });
+  }
 
   return (
     <div className="flex flex-1 items-center gap-3">
@@ -36,7 +51,7 @@ export function AddToCartButton({ producto }: { producto: Producto }) {
       <Button
         size="lg"
         className="h-12 flex-1 bg-brand text-white hover:bg-brand-dark"
-        onClick={() => addItem(producto, cantidad)}
+        onClick={handleAgregar}
       >
         <ShoppingCartIcon className="size-5" />
         Agregar al pedido

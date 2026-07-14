@@ -1,10 +1,81 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 import { toggleProductStatus, deleteProduct, bulkUpdatePriceByPercentage } from "./actions";
-import { TrashIcon, PencilIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, PencilIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+
+const CATEGORIAS_ESPECIALES = [
+  { field: "destacado", label: "Destacado" },
+  { field: "nuevo", label: "Nuevo" },
+] as const;
+
+function CategoriaEspecialDropdown({
+  destacado,
+  nuevo,
+  onToggle,
+}: {
+  destacado: boolean;
+  nuevo: boolean;
+  onToggle: (field: "destacado" | "nuevo", value: boolean) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const valores = { destacado, nuevo };
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  const seleccionadas = CATEGORIAS_ESPECIALES.filter((c) => valores[c.field]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex min-w-[8rem] items-center justify-between gap-1.5 rounded-md border border-input px-2.5 py-1.5 text-xs hover:bg-muted"
+      >
+        {seleccionadas.length > 0 ? (
+          <span className="flex flex-wrap gap-1">
+            {seleccionadas.map((c) => (
+              <span key={c.field} className="rounded-full bg-brand-tint px-2 py-0.5 font-medium text-brand">
+                {c.label}
+              </span>
+            ))}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">Ninguna</span>
+        )}
+        <ChevronDownIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      </button>
+      {open && (
+        <div className="absolute z-10 mt-1 w-40 rounded-md border bg-card p-1 shadow-lg">
+          {CATEGORIAS_ESPECIALES.map((c) => (
+            <label
+              key={c.field}
+              className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-muted"
+            >
+              <input
+                type="checkbox"
+                checked={valores[c.field]}
+                onChange={() => onToggle(c.field, !valores[c.field])}
+                className="cursor-pointer"
+              />
+              {c.label}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export type ProductListItem = {
   id: string;
@@ -185,8 +256,7 @@ export function ProductList({ products }: { products: ProductListItem[] }) {
                 <th className="px-4 py-3 font-medium">Categoría</th>
                 <th className="px-4 py-3 font-medium">Precio</th>
                 <th className="px-4 py-3 font-medium">Activo</th>
-                <th className="px-4 py-3 font-medium">Destacado</th>
-                <th className="px-4 py-3 font-medium">Nuevo</th>
+                <th className="px-4 py-3 font-medium">Categoría especial</th>
                 <th className="px-4 py-3 font-medium text-right">Acciones</th>
               </tr>
             </thead>
@@ -227,19 +297,10 @@ export function ProductList({ products }: { products: ProductListItem[] }) {
                     />
                   </td>
                   <td className="px-4 py-3">
-                    <input
-                      type="checkbox"
-                      checked={p.destacado}
-                      onChange={() => handleToggle(p.id, "destacado", p.destacado)}
-                      className="cursor-pointer"
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <input
-                      type="checkbox"
-                      checked={p.nuevo}
-                      onChange={() => handleToggle(p.id, "nuevo", p.nuevo)}
-                      className="cursor-pointer"
+                    <CategoriaEspecialDropdown
+                      destacado={p.destacado}
+                      nuevo={p.nuevo}
+                      onToggle={(field, value) => handleToggle(p.id, field, value)}
                     />
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -262,7 +323,7 @@ export function ProductList({ products }: { products: ProductListItem[] }) {
               ))}
               {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                     No se encontraron productos.
                   </td>
                 </tr>

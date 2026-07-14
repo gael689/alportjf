@@ -15,10 +15,12 @@ function CategoriaEspecialDropdown({
   destacado,
   nuevo,
   onToggle,
+  onLimpiar,
 }: {
   destacado: boolean;
   nuevo: boolean;
   onToggle: (field: "destacado" | "nuevo", value: boolean) => void;
+  onLimpiar: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -57,6 +59,18 @@ function CategoriaEspecialDropdown({
       </button>
       {open && (
         <div className="absolute z-10 mt-1 w-40 rounded-md border bg-card p-1 shadow-lg">
+          <button
+            type="button"
+            disabled={seleccionadas.length === 0}
+            onClick={() => {
+              onLimpiar();
+              setOpen(false);
+            }}
+            className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Ninguna
+          </button>
+          <div className="my-1 border-t" />
           {CATEGORIAS_ESPECIALES.map((c) => (
             <label
               key={c.field}
@@ -108,6 +122,11 @@ export function ProductList({ products }: { products: ProductListItem[] }) {
 
   const handleToggle = async (id: string, field: "activo" | "destacado" | "nuevo", currentValue: boolean) => {
     await toggleProductStatus(id, field, !currentValue);
+  };
+
+  const handleLimpiarCategoriaEspecial = async (id: string, destacado: boolean, nuevo: boolean) => {
+    if (destacado) await toggleProductStatus(id, "destacado", false);
+    if (nuevo) await toggleProductStatus(id, "nuevo", false);
   };
 
   const handleDelete = async (id: string) => {
@@ -301,6 +320,7 @@ export function ProductList({ products }: { products: ProductListItem[] }) {
                       destacado={p.destacado}
                       nuevo={p.nuevo}
                       onToggle={(field, value) => handleToggle(p.id, field, value)}
+                      onLimpiar={() => handleLimpiarCategoriaEspecial(p.id, p.destacado, p.nuevo)}
                     />
                   </td>
                   <td className="px-4 py-3 text-right">

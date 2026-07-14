@@ -1,7 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { setSeccionesDeProducto } from "@/lib/secciones-helpers";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -20,7 +21,8 @@ export async function toggleProductStatus(id: string, field: "activo" | "destaca
   revalidatePath("/admin/productos");
   revalidatePath("/");
   revalidatePath("/productos");
-  
+  updateTag("productos");
+
   return { success: true };
 }
 
@@ -50,6 +52,7 @@ export async function deleteProduct(id: string) {
   revalidatePath("/admin/productos");
   revalidatePath("/");
   revalidatePath("/productos");
+  updateTag("productos");
 
   return { success: true };
 }
@@ -98,6 +101,7 @@ export async function bulkUpdatePriceByPercentage(ids: string[], porcentaje: num
   revalidatePath("/admin/productos");
   revalidatePath("/");
   revalidatePath("/productos");
+  updateTag("productos");
 
   return {
     success: true,
@@ -192,6 +196,8 @@ export async function saveProduct(formData: FormData, id?: string) {
     // JSON inválido: se guarda el producto sin imágenes en vez de romper el submit.
   }
 
+  const seccionIds = formData.getAll("seccionIds").map(String);
+
   const slug = await generarSlugUnicoProducto(supabase, nombre, categoria_id, id);
 
   const productData = {
@@ -267,11 +273,14 @@ export async function saveProduct(formData: FormData, id?: string) {
         // We still succeed the product creation/update, but log the error
       }
     }
+
+    await setSeccionesDeProducto(supabase, productId, seccionIds);
   }
 
   revalidatePath("/admin/productos");
   revalidatePath("/");
   revalidatePath("/productos");
-  
+  updateTag("productos");
+
   return { success: true };
 }

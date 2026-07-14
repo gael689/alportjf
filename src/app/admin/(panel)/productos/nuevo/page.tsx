@@ -2,6 +2,7 @@ import { ProductoForm } from "@/components/admin/producto-form";
 import { saveProduct } from "../actions";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORIAS_SEED } from "@/data/categorias.seed";
+import { getAllSeccionesAdmin } from "@/data/secciones";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 export const metadata = {
@@ -10,13 +11,15 @@ export const metadata = {
 
 export default async function NuevoProductoPage() {
   let categorias: { id: string; nombre: string }[] = [];
-  
+  let secciones: { id: string; nombre: string }[] = [];
+
   if (!isSupabaseConfigured()) {
     categorias = CATEGORIAS_SEED;
   } else {
     const supabase = await createClient();
     const { data } = await supabase.from("categorias").select("id, nombre").eq("activo", true);
     if (data) categorias = data;
+    secciones = await getAllSeccionesAdmin();
   }
 
   return (
@@ -29,12 +32,13 @@ export default async function NuevoProductoPage() {
       </div>
 
       <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
-        <ProductoForm 
-          categorias={categorias} 
+        <ProductoForm
+          categorias={categorias}
+          secciones={secciones}
           action={async (formData) => {
             "use server";
             return saveProduct(formData);
-          }} 
+          }}
         />
       </div>
     </div>

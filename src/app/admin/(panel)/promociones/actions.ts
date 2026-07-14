@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 export async function toggleBannerStatus(id: string, field: "activo", value: boolean) {
   const supabase = await createClient();
@@ -17,6 +17,7 @@ export async function toggleBannerStatus(id: string, field: "activo", value: boo
   
   revalidatePath("/admin/promociones");
   revalidatePath("/");
+  updateTag("banners");
   
   return { success: true };
 }
@@ -52,6 +53,7 @@ export async function deleteBanner(id: string) {
 
   revalidatePath("/admin/promociones");
   revalidatePath("/");
+  updateTag("banners");
 
   return { success: true };
 }
@@ -67,6 +69,7 @@ export async function reorderBanners(orderedIds: string[]) {
 
   revalidatePath("/admin/promociones");
   revalidatePath("/");
+  updateTag("banners");
   return { success: true };
 }
 
@@ -126,6 +129,7 @@ export async function saveBanner(formData: FormData, id?: string) {
 
   revalidatePath("/admin/promociones");
   revalidatePath("/");
+  updateTag("banners");
   
   return { success: true };
 }

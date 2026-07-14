@@ -9,6 +9,11 @@ type Categoria = {
   nombre: string;
 };
 
+type Seccion = {
+  id: string;
+  nombre: string;
+};
+
 type ProductoFormInitialData = {
   nombre?: string;
   marca?: string;
@@ -22,15 +27,17 @@ type ProductoFormInitialData = {
   destacado?: boolean;
   nuevo?: boolean;
   imagenes?: { url: string }[];
+  seccionIds?: string[];
 };
 
 type ProductoFormProps = {
   initialData?: ProductoFormInitialData;
   categorias: Categoria[];
+  secciones?: Seccion[];
   action: (formData: FormData) => Promise<{ success: boolean; error?: string }>;
 };
 
-export function ProductoForm({ initialData, categorias, action }: ProductoFormProps) {
+export function ProductoForm({ initialData, categorias, secciones = [], action }: ProductoFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -237,6 +244,33 @@ export function ProductoForm({ initialData, categorias, action }: ProductoFormPr
           </div>
         </div>
       </div>
+
+      {secciones.length > 0 && (
+        <div className="space-y-3 rounded-lg border bg-card p-4">
+          <h3 className="font-semibold text-lg">Secciones de la home</h3>
+          <p className="text-sm text-muted-foreground">
+            Elegí en qué vitrinas de la página de inicio aparece este producto. Se pueden
+            crear y renombrar secciones nuevas desde &quot;Secciones home&quot; en el menú.
+          </p>
+          <div className="flex flex-wrap gap-3 pt-1">
+            {secciones.map((s) => (
+              <label
+                key={s.id}
+                className="flex items-center gap-2 rounded-md border border-input px-3 py-2 text-sm cursor-pointer hover:bg-muted"
+              >
+                <input
+                  type="checkbox"
+                  name="seccionIds"
+                  value={s.id}
+                  defaultChecked={initialData?.seccionIds?.includes(s.id)}
+                  className="rounded border-input text-brand focus:ring-brand cursor-pointer"
+                />
+                {s.nombre}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4 rounded-lg border bg-card p-4">
         <h3 className="font-semibold text-lg">Imágenes</h3>

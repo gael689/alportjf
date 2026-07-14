@@ -1,7 +1,8 @@
+import { unstable_cache } from "next/cache";
 import type { Categoria } from "@/data/types";
 import { CATEGORIAS_SEED } from "@/data/categorias.seed";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public-client";
 
 type CategoriaRow = {
   id: string;
@@ -23,19 +24,31 @@ function mapRow(row: CategoriaRow): Categoria {
   };
 }
 
-/** Todas las categorías activas, en el orden definido desde el panel. */
-export async function getAllCategorias(): Promise<Categoria[]> {
-  if (!isSupabaseConfigured()) return CATEGORIAS_SEED;
-
-  const supabase = await createClient();
+async function fetchAllCategorias(): Promise<Categoria[]> {
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("categorias")
     .select("id, slug, nombre, icono, destacada, activo")
     .eq("activo", true)
     .order("orden", { ascending: true });
 
-  if (error || !data) return CATEGORIAS_SEED;
-  return data.map(mapRow);
+  if (error) throw new Error(error.message);
+  return (data as CategoriaRow[]).map(mapRow);
+}
+
+const getCachedCategorias = unstable_cache(fetchAllCategorias, ["categorias-activas"], {
+  tags: ["categorias"],
+  revalidate: 300,
+});
+
+/** Todas las categorías activas, en el orden definido desde el panel. */
+export async function getAllCategorias(): Promise<Categoria[]> {
+  if (!isSupabaseConfigured()) return CATEGORIAS_SEED;
+  try {
+    return await getCachedCategorias();
+  } catch {
+    return CATEGORIAS_SEED;
+  }
 }
 
 export async function getCategoriasDestacadas(): Promise<Categoria[]> {

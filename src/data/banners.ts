@@ -1,7 +1,8 @@
+import { unstable_cache } from "next/cache";
 import type { PromoBanner } from "@/data/types";
 import { BANNERS_SEED } from "@/data/banners.seed";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public-client";
 
 type BannerRow = {
   id: string;
@@ -15,18 +16,15 @@ type BannerRow = {
   activo: boolean;
 };
 
-/** Todos los banners activos, ordenados como se definió desde el panel. */
-export async function getAllBanners(): Promise<PromoBanner[]> {
-  if (!isSupabaseConfigured()) return BANNERS_SEED;
-
-  const supabase = await createClient();
+async function fetchAllBanners(): Promise<PromoBanner[]> {
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("banners")
     .select("*")
     .eq("activo", true)
     .order("orden", { ascending: true });
 
-  if (error || !data) return BANNERS_SEED;
+  if (error) throw new Error(error.message);
 
   return (data as BannerRow[]).map((row) => ({
     id: row.id,
@@ -41,4 +39,19 @@ export async function getAllBanners(): Promise<PromoBanner[]> {
     orden: row.orden,
     activo: row.activo,
   }));
+}
+
+const getCachedBanners = unstable_cache(fetchAllBanners, ["banners-activos"], {
+  tags: ["banners"],
+  revalidate: 300,
+});
+
+/** Todos los banners activos, ordenados como se definió desde el panel. */
+export async function getAllBanners(): Promise<PromoBanner[]> {
+  if (!isSupabaseConfigured()) return BANNERS_SEED;
+  try {
+    return await getCachedBanners();
+  } catch {
+    return BANNERS_SEED;
+  }
 }

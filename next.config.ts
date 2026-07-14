@@ -19,11 +19,10 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Las paginas (HTML) siempre se revalidan: evita que el navegador o el
-        // operador movil muestren una version vieja del sitio a quien vuelve a
-        // entrar. Se excluyen los assets versionados de Next (_next/*), que ya
-        // Next.js cachea correctamente solo (no conviene tocarlos a mano).
-        source: "/((?!_next/).*)",
+        // El panel de administración siempre se revalida: son pocas visitas (el
+        // dueño del comercio) y necesitan ver el dato más nuevo siempre, así que
+        // acá el costo de no cachear no importa.
+        source: "/admin/:path*",
         headers: [
           {
             key: "Cache-Control",
@@ -31,6 +30,10 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Las páginas públicas (home, catálogo, producto) ya NO llevan este header:
+      // se sirven cacheadas (Vercel CDN + Next Data Cache) para aguantar muchas
+      // visitas a la vez, y se invalidan al instante cuando el panel guarda un
+      // cambio (revalidateTag/revalidatePath en cada server action de /admin).
     ];
   },
 };

@@ -3,6 +3,7 @@ import { saveProduct } from "../actions";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORIAS_SEED } from "@/data/categorias.seed";
 import { PRODUCTOS_SEED } from "@/data/productos.seed";
+import { getAllSeccionesAdmin, getSeccionIdsDeProducto } from "@/data/secciones";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { notFound } from "next/navigation";
 
@@ -19,6 +20,7 @@ export default async function EditarProductoPage({
 }) {
   const { id } = await params;
   let categorias: { id: string; nombre: string }[] = [];
+  let secciones: { id: string; nombre: string }[] = [];
   let producto = null;
 
   if (!isSupabaseConfigured()) {
@@ -36,6 +38,7 @@ export default async function EditarProductoPage({
     // Fetch categories
     const { data: catData } = await supabase.from("categorias").select("id, nombre").eq("activo", true);
     if (catData) categorias = catData;
+    secciones = await getAllSeccionesAdmin();
 
     // Fetch product
     const { data: prodData } = await supabase
@@ -49,7 +52,7 @@ export default async function EditarProductoPage({
       const imagenesFormateadas = imgs
         .sort((a, b) => a.orden - b.orden)
         .map((img) => ({ url: img.storage_path }));
-        
+
       producto = {
         ...prodData,
         categoriaId: prodData.categoria_id,
@@ -57,6 +60,7 @@ export default async function EditarProductoPage({
         precioPromo: prodData.precio_promo,
         ofertaHasta: prodData.oferta_hasta,
         imagenes: imagenesFormateadas,
+        seccionIds: await getSeccionIdsDeProducto(id),
       };
     }
   }
@@ -75,13 +79,14 @@ export default async function EditarProductoPage({
       </div>
 
       <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
-        <ProductoForm 
+        <ProductoForm
           categorias={categorias}
+          secciones={secciones}
           initialData={producto}
           action={async (formData) => {
             "use server";
             return saveProduct(formData, id);
-          }} 
+          }}
         />
       </div>
     </div>

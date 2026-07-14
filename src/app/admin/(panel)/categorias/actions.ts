@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -20,7 +20,8 @@ export async function toggleCategoryStatus(id: string, field: "activo" | "destac
   revalidatePath("/admin/categorias");
   revalidatePath("/");
   revalidatePath("/productos");
-  
+  updateTag("categorias");
+
   return { success: true };
 }
 
@@ -39,7 +40,8 @@ export async function deleteCategory(id: string) {
   revalidatePath("/admin/categorias");
   revalidatePath("/");
   revalidatePath("/productos");
-  
+  updateTag("categorias");
+
   return { success: true };
 }
 
@@ -55,6 +57,7 @@ export async function reorderCategories(orderedIds: string[]) {
 
   revalidatePath("/admin/categorias");
   revalidatePath("/");
+  updateTag("categorias");
   return { success: true };
 }
 
@@ -138,6 +141,7 @@ export async function saveCategory(formData: FormData, id?: string) {
   revalidatePath("/admin/categorias");
   revalidatePath("/");
   revalidatePath("/productos");
-  
+  updateTag("categorias");
+
   return { success: true };
 }

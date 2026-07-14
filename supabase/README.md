@@ -6,6 +6,7 @@
    - `0002_rls_policies.sql` — reglas de seguridad: el sitio público solo ve lo activo, el panel (logueado) ve y edita todo.
    - `0003_storage.sql` — crea los buckets `productos` y `banners` para las fotos que se suben desde el panel.
    - `0004_seed.sql` — carga el catálogo de demo actual, para no arrancar con el panel vacío.
+   - `0005_secciones.sql` — vitrinas configurables de la home ("Productos destacados", "Lo más nuevo", y las que quieras crear), migrando automáticamente lo que ya estaba marcado como destacado/nuevo.
 3. Andá a **Project Settings > Data API** y copiá:
    - `Project URL` → pegalo en `NEXT_PUBLIC_SUPABASE_URL` (ver `.env.local.example` en la raíz del repo).
    - `anon public key` → pegalo en `NEXT_PUBLIC_SUPABASE_ANON_KEY`.

@@ -29,6 +29,16 @@ export type Producto = {
   stock?: number;
 };
 
+/** Vitrina configurable de la home (ej. "Productos destacados", "Lo más nuevo", "Lo último"). */
+export type Seccion = {
+  id: string;
+  slug: string;
+  nombre: string;
+  subtitulo?: string;
+  orden: number;
+  activo: boolean;
+};
+
 export type PromoBanner = {
   id: string;
   /** Imagen de fondo opcional, subida desde el panel (si no hay, se usa colorFondo/colorTexto) */

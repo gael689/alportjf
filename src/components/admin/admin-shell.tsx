@@ -8,6 +8,7 @@ import {
   HomeIcon,
   CubeIcon,
   TagIcon,
+  Squares2X2Icon,
   MegaphoneIcon,
   ArrowTrendingUpIcon,
   ArrowRightStartOnRectangleIcon,
@@ -27,6 +28,7 @@ const ADMIN_NAV = [
   { href: "/admin", label: "Dashboard", icono: HomeIcon },
   { href: "/admin/productos", label: "Productos", icono: CubeIcon },
   { href: "/admin/categorias", label: "Categorías", icono: TagIcon },
+  { href: "/admin/secciones", label: "Secciones home", icono: Squares2X2Icon },
   { href: "/admin/promociones", label: "Promociones", icono: MegaphoneIcon },
   { href: "/admin/ofertas", label: "Ofertas", icono: ArrowTrendingUpIcon },
 ] as const;

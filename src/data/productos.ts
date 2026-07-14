@@ -1,11 +1,12 @@
+import { unstable_cache } from "next/cache";
 import type { Producto } from "@/data/types";
 import { PRODUCTOS_SEED } from "@/data/productos.seed";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public-client";
 
 const SELECT_PRODUCTO = "*, categorias(slug), producto_imagenes(storage_path, orden)";
 
-type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+type SupabasePublicClient = ReturnType<typeof createPublicClient>;
 
 type ProductoRow = {
   id: string;
@@ -25,7 +26,7 @@ type ProductoRow = {
   producto_imagenes: { storage_path: string; orden: number }[];
 };
 
-function resolveImagen(row: ProductoRow, supabase: SupabaseServerClient): string {
+function resolveImagen(row: ProductoRow, supabase: SupabasePublicClient): string {
   const [principal] = [...row.producto_imagenes].sort((a, b) => a.orden - b.orden);
   if (principal) {
     return supabase.storage.from("productos").getPublicUrl(principal.storage_path).data
@@ -36,7 +37,7 @@ function resolveImagen(row: ProductoRow, supabase: SupabaseServerClient): string
   return `/images/products/${categoriaSlug}.svg`;
 }
 
-function mapRow(row: ProductoRow, supabase: SupabaseServerClient): Producto {
+function mapRow(row: ProductoRow, supabase: SupabasePublicClient): Producto {
   return {
     id: row.id,
     slug: row.slug,
@@ -55,25 +56,20 @@ function mapRow(row: ProductoRow, supabase: SupabaseServerClient): Producto {
   };
 }
 
-/** Todos los productos activos. */
-export async function getAllProductos(): Promise<Producto[]> {
-  if (!isSupabaseConfigured()) return PRODUCTOS_SEED;
-
-  const supabase = await createClient();
+async function fetchAllProductos(): Promise<Producto[]> {
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("productos")
     .select(SELECT_PRODUCTO)
     .eq("activo", true)
     .order("created_at", { ascending: false });
 
-  if (error || !data) return PRODUCTOS_SEED;
-  return (data as ProductoRow[]).map((row) => mapRow(row, supabase));
+  if (error) throw new Error(error.message);
+  return (data as unknown as ProductoRow[]).map((row) => mapRow(row, supabase));
 }
 
-export async function getProductoBySlug(slug: string): Promise<Producto | undefined> {
-  if (!isSupabaseConfigured()) return PRODUCTOS_SEED.find((p) => p.slug === slug);
-
-  const supabase = await createClient();
+async function fetchProductoBySlug(slug: string): Promise<Producto | undefined> {
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("productos")
     .select(SELECT_PRODUCTO)
@@ -81,8 +77,41 @@ export async function getProductoBySlug(slug: string): Promise<Producto | undefi
     .eq("activo", true)
     .maybeSingle();
 
-  if (error || !data) return undefined;
-  return mapRow(data as ProductoRow, supabase);
+  if (error) throw new Error(error.message);
+  if (!data) return undefined;
+  return mapRow(data as unknown as ProductoRow, supabase);
+}
+
+// Cache de datos de Next.js: sirve la misma respuesta durante `revalidate` segundos sin
+// volver a golpear Supabase, y se invalida al instante cuando el panel guarda un cambio
+// (revalidateTag("productos") en las server actions de /admin/productos).
+const getCachedProductos = unstable_cache(fetchAllProductos, ["productos-activos"], {
+  tags: ["productos"],
+  revalidate: 300,
+});
+
+const getCachedProductoBySlug = unstable_cache(fetchProductoBySlug, ["producto-por-slug"], {
+  tags: ["productos"],
+  revalidate: 300,
+});
+
+/** Todos los productos activos. */
+export async function getAllProductos(): Promise<Producto[]> {
+  if (!isSupabaseConfigured()) return PRODUCTOS_SEED;
+  try {
+    return await getCachedProductos();
+  } catch {
+    return PRODUCTOS_SEED;
+  }
+}
+
+export async function getProductoBySlug(slug: string): Promise<Producto | undefined> {
+  if (!isSupabaseConfigured()) return PRODUCTOS_SEED.find((p) => p.slug === slug);
+  try {
+    return await getCachedProductoBySlug(slug);
+  } catch {
+    return PRODUCTOS_SEED.find((p) => p.slug === slug);
+  }
 }
 
 export async function getProductosByCategoria(categoriaId: string): Promise<Producto[]> {

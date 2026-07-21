@@ -20,8 +20,8 @@ export const SITE = {
   },
   telefonoFijo: "2923 489176",
   // Pendiente de confirmación del cliente — placeholder editable en un solo lugar.
-  whatsapp: "5492923000000",
-  mail: "contacto@alportjfpuan.com.ar",
+  whatsapp: "5492923581199",
+  mail: "jfreidenberger@hotmail.com",
   instagram: "https://instagram.com/alportjfpuan",
   instagramHandle: "@alportjfpuan",
   facebook: "https://facebook.com/AlportJF",
